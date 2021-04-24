@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇</title>
+</head>
+<style>
+    #map {
+        width: 500px;
+        height: 500px;
+        margin: 30px auto;
+        background-color: antiquewhite;
+        position: relative;
+    }
+
+    #snake {
+        width: 10px;
+        height: 10px;
+        background-color: #9fe4ff;
+        position: absolute;
+    }
+
+    .snake {
+        width: 10px;
+        height: 10px;
+        background-color: #9fe4ff;
+        position: absolute;
+    }
+</style>
+<body>
+    <div id="container">
+        <!-- 地图的div -->
+        <div id="map">
+            <!-- <div id="snake"></div> -->
+        </div>
+    </div>
+
+    <script>
+
+        var Map;//定义背景对象
+        var Score;//定义分数框对象
+        var Snake;//定义蛇身对象
+        var Begin;//定义开始游戏按钮对象
+        var Food;//定义吃豆豆对象
+        var NewGame;//定义重新游戏对象
+        var b = 0;//定义分数值，方便全局改变
+        var address = true;//标志值
+        var sign = true;//标志值
+
+        let snake;
+        let map;
+        let time;
+        let direction = 3;
+        let up = 1;
+        let left = 2;
+        let right = 3;
+        let down = 4;
+        let food;
+        var snakebody = [[4, 1, null, "#9fe4ff"], [3, 1, null, "#35ff4c"], [2, 1, null, "#35ff4c"]];
+       
+        window.onload = function() {
+            createsnake()
+            showfood()
+            document.onkeydown = function (e) {
+                window.clearInterval(time);
+
+                if (e.keyCode == 37 && direction != right) {
+                    direction = left;
+                } else if (e.keyCode == 38 && direction != down) {
+                    direction = up;
+                } else if (e.keyCode == 39 && direction != left) {
+                    direction = right;
+                } else if (e.keyCode == 40 && direction != up) {
+                    direction = down;
+                }
+
+                // if ((e.keyCode == 37 || e.keyCode == 65) && direction != right) {
+                //     direction = left;
+                // } else if ((e.keyCode == 38 || e.keyCode == 87) && direction != down) {
+                //     direction = up;
+                // } else if ((e.keyCode == 39 || e.keyCode == 68) && direction != left) {
+                //     direction = right;
+                // } else if ((e.keyCode == 40 || e.keyCode == 83) && direction != up) {
+                //     direction = down;
+                // }
+
+                // time = setInterval(move, 200);
+                console.log(e.keyCode);
+                
+            }
+            timer = setInterval(move, 100);
+           
+        }
+
+        // 食物的函数
+        function showfood() {
+            let color = "rgb(" + Math.floor(Math.random() * 200) + "," + Math.floor(Math.random() * 200) + "," + Math.floor(Math.random() * 200) + ")";
+            let foodtop = Math.floor(Math.random() * 50) * 10;
+            let foodleft = Math.floor(Math.random() * 50) * 10;
+            map = document.getElementById("map");
+            food = document.createElement("div");
+            map.appendChild(food);
+
+            food.style.width = "10px";
+            food.style.height = "10px";
+            food.style.position = "absolute";
+            // food.style.backgroundColor = "black";
+            food.style.backgroundColor = color;
+            food.style.top = foodtop + "px";
+            food.style.left = foodleft + "px";
+        }
+        //创造蛇的身体
+        function createsnake() {
+            for (var i = 0; i < snakebody.length; i++) {//遍历数组，创建每一个div
+                if (snakebody[i][2] == null) {
+                    var map = document.getElementById("map");
+                    snakebody[i][2] = document.createElement("div");
+                    snakebody[i][2].style.width = 10 + "px";
+                    snakebody[i][2].style.height = 10 + "px";
+                    snakebody[i][2].style.backgroundColor = snakebody[i][3];
+                    snakebody[i][2].style.position = "absolute";
+                    snakebody[i][2].className = snake;
+                    map.appendChild(snakebody[i][2]);//添加到背景图_map中
+                }
+                snakebody[i][2].style.left = snakebody[i][0] * 10 + "px";//放到if判断外便可动态变化div位置，因为该方法在定时器中重复执行
+                snakebody[i][2].style.top = snakebody[i][1] * 10 + "px";
+            }
+        }
+
+        // 蛇的移动
+        function move() {
+            // 按键控制上下左右
+            var length = snakebody.length - 1;//获取数组最后一个元素下标
+            for (var i = length; i > 0; i--) {//遍历数组元素前值位置赋值给后值
+                snakebody[i][0] = snakebody[i - 1][0];
+                snakebody[i][1] = snakebody[i - 1][1];
+            }
+            switch (direction) {//获取direct属性值每一时间段改变位置
+                case right:
+                    snakebody[0][0] += 1;
+                    break;
+                case left:
+                    snakebody[0][0] -= 1;
+                    break;
+                case up:
+                    snakebody[0][1] -= 1;
+                    break;
+                case down:
+                    snakebody[0][1] += 1;
+                    break;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

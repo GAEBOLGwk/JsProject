@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #map {
+        width: 500px;
+        height: 500px;
+        margin: 30px auto;
+        background-color: antiquewhite;
+        position: relative;
+    }
+    #snake {
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        position: absolute;
+        top: 100px;
+    }
+</style>
+
+<body>
+    <div id="container">
+        <!-- 地图的div -->
+        <div id="map">
+            <div id="snake"></div>
+        </div>
+    </div>
+
+    <script>
+        var time;
+        var direction;
+        var up = 1;
+        var down = 2;
+        var left = 3;
+        var right = 4;
+        var food;
+
+        onkeypress = function (e) {
+            window.clearInterval(time);
+            var snake = document.getElementById("snake");
+            var top_length = snake.offsetTop;
+            if (e.keyCode == 119) {
+                //上
+                direction = up;
+            } else if (e.keyCode == 115) {
+                //下
+                direction = down;
+            } else if (e.keyCode == 100) {
+                //右
+                direction = right
+            } else if (e.keyCode == 97) {
+                //左
+                direction = left;
+            }
+            time = setInterval(move, 200);
+        };
+
+        function move() {
+            var snake = document.getElementById("snake");
+            var top_length = snake.offsetTop;
+            var left_length = snake.offsetLeft;
+            switch (direction) {
+                case up:
+                    if (top_length > 0) {
+                        top_length -= 10;
+                        snake.style.top = top_length + "px";
+                    }
+                    break;
+                case down:
+                    if (top_length < 490) {
+                        top_length += 10;
+                        snake.style.top = top_length + "px";
+                    }
+                    break;
+                case left:
+                    if (left_length > 0) {
+                        left_length -= 10;
+                        snake.style.left = left_length + "px";
+                    }
+                    break;
+                case right:
+                    if (left_length < 490) {
+                        left_length += 10;
+                        snake.style.left = left_length + "px";
+                    }
+                    break;
+            }
+            //显示食物
+            if (food == null) {
+                showFood();
+            } else {
+                var map = document.getElementById("map");
+                //alert(left_length + ":" + food.offsetLeft + "|" + top_length + ":" + food.offsetTop);
+                if (left_length == food.offsetLeft && top_length == food.offsetTop) {
+                    map.removeChild(food);
+                    food = null;
+                }
+            }
+        }
+
+        /**
+         * 随即出现食物
+         */
+        function showFood() {
+            var food_top = Math.floor(Math.random() * 50) * 10;
+            var food_left = Math.floor(Math.random() * 50) * 10;
+            var map = document.getElementById("map");
+            food = document.createElement("div");
+            map.appendChild(food);
+            food.style.width = "10px";
+            food.style.height = "10px";
+            food.style.position = "absolute";
+            food.style.backgroundColor = "blue";
+            food.style.top = food_top + "px";
+            food.style.left = food_left + "px";
+        }
+    </script>
+</body>
+
+</html>
