@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫雷</title>
+</head>
+<style>
+    .container {
+        margin: 30px auto;
+        text-align: center;
+    }
+    .container .level button {
+        background-color: #e5c1cd;
+        outline-style: none;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+    }
+    .container .level button.select {
+        background-color: #b6b4c2;
+    }
+    .container .last {
+        color: #d87f81;
+    }
+    .mine{
+       width: 260px;
+       height: 260px; 
+       margin: 30px auto;
+    }
+    .block:hover{
+        cursor: pointer;
+        box-shadow: #bfb8da 0 0 5px;
+    }
+    .block{
+        width: 20px;
+        height: 20px;
+        margin:2px 2px;
+        border: 1px solid #ebd7d4;
+        background-color: #bfb8da;
+        float: left;line-height: 20px;
+        text-align: center;
+    }
+</style>
+<body>
+    <div class="container">
+        <div class="level">
+            <button class="select">简单</button>
+            <button>一般</button>
+            <button>困难</button>
+            <button>重新开始</button>
+        </div>
+        <div class="last">总共雷数: <span class="mineNum"></span></div>
+        <div class="mine" id="mine"></div>
+       
+    </div>
+
+
+    <script>
+        layout()
+        function layout(){
+            let mine = document.getElementById('mine');
+            for(let i = 0;i<10;i++){
+                for(let j = 0; j<10;j++){
+                    let box = document.createElement('div');
+                    box.classList.add('block');
+                    box.setAttribute('id', i+ '-'+j);
+                    mine.appendChild(box);
+                }
+            }
+            block =document.getElementsByClassName('block');
+            boom_index = Math.floor(Math.random()*100);
+            block[boom_index].classList.add('islei');
+            
+
+        }
+
+    </script>
+</body>
+
+
+</html>

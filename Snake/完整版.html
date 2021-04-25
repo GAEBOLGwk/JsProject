@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    @font-face {
+        font-family: myself;
+        src: url(../font/H.ttf);
+    }
+
+    body {
+        background-color: rgba(106, 139, 205, 0.96);
+    }
+
+    .map {
+        left: 50%;
+        margin-left: -450px;
+        top: 100px;
+        border: 5px solid #23fdff;
+    }
+
+    .score {
+        font-family: cursive;
+        width: 100px;
+        height: 20px;
+        border: 2px solid #23fdff;
+        font-size: 18px;
+        border-radius: 20%;
+        box-shadow: 0px 0px 5px red, 0px 0px 10px blue, 0px 0px 15px green;
+        text-align: center;
+        line-height: 150%;
+        top: 50px;
+        left: 50%;
+        margin-left: -50px;
+    }
+
+    .snake {
+        border-radius: 100%;
+    }
+
+    .food {
+        border-radius: 100%;
+    }
+
+    .begin {
+        font-family: myself;
+        border: 2px solid #23fdff;
+        border-radius: 20%;
+        box-shadow: 0px 0px 5px red, 0px 0px 10px blue, 0px 0px 15px green;
+        top: 50%;
+        left: 50%;
+        margin-left: -50px;
+        margin-top: -20px;
+        color: white;
+        font-size: 16px;
+        z-index: 9999;
+    }
+
+    .newGame {
+        font-family: myself;
+        border: 2px solid #23fdff;
+        border-radius: 20%;
+        box-shadow: 0px 0px 5px red, 0px 0px 10px blue, 0px 0px 15px green;
+        top: 55%;
+        left: 50%;
+        margin-left: -50px;
+        color: white;
+        font-size: 16px;
+        z-index: 9999;
+    }
+
+    .newGame:hover {
+        border: 2px solid #c05e8c;
+        color: #A1FEDC;
+    }
+
+    .begin:hover {
+        border: 2px solid #c05e8c;
+        color: #A1FEDC;
+
+    }
+
+    .over {
+        font-family: cursive;
+        border: 2px solid #23f00f;
+        border-radius: 20%;
+        box-shadow: 0px 0px 5px red, 0px 0px 10px blue, 0px 0px 15px white;
+        top: 200px;
+        left: 300px;
+        color: black;
+        line-height: 50px;
+        text-align: center;
+        font-size: 20px;
+    }
+</style>
+
+<body>
+    <script>
+        var Map;//定义背景对象
+        var Score;//定义分数框对象
+        var Snake;//定义蛇身对象
+        var Begin;//定义开始游戏按钮对象
+        var Food;//定义吃豆豆对象
+        var NewGame;//定义重新游戏对象
+        var b = 0;//定义分数值，方便全局改变
+        var address = true;//标志值
+        var sign = true;//标志值
+        var snakeBody = [[4, 1, null, "#9fe4ff"], [3, 1, null, "#35ff4c"], [2, 1, null, "#35ff4c"]];
+        /*定义一个二维数组，每一个数组中存放的元素是贪吃蛇蛇身的每一个块（蛇身由一连串div构成）的样式和属性。
+         *下标为[i][0]的元素代表div的left
+         *下标为[i][1]的元素代表div的top
+         *下标为[i][2]的元素代表该对象是否存在
+         *下标为[i][3]的元素代表div的颜色（要是想用图片可以改编为Img路径）
+        */
+        Map = new map();//定义对应构造函数
+        Snake = new snake();
+        Score = new score();
+        Begin = new begin();
+        Over = new over();
+        Food = new food();
+        NewGame = new newGame();
+
+        Begin.createBegin();//调用属性方法（创建开始按钮）
+        Score.createScore();//调用属性方法（创建分数框）
+        Map.createMap();//调用属性方法（创建背景图）
+        Snake.createSnake();//调用属性方法（创建蛇身）
+        Food.createFood();//调用属性方法（创建豆豆）
+
+        var oBegin = document.getElementsByClassName("begin")[0];
+        /*给动态创建出来的开始按钮添加点击事件*/
+        document.onkeydown = function (event) {
+            /*实现键盘方向键控制蛇身的功能，获取键值（传参)调用Snake对象属性里面的direction方法*/
+            Snake.direction(event.keyCode);
+        }
+
+        oBegin.onclick = function () {
+            /*点击开始游戏后，移除开始游戏按钮，并设置定时器每隔一段时间动态的改变蛇身位置*/
+            Begin._begin.remove();
+            var timer = setInterval("Snake.move()", 200);//这里调用了Snake对象属性内的move方法
+        }
+
+        function map() {//定义背景图的构造函数
+            this.width = "900px";//设置属性
+            this.height = "600px";
+            this.bgColor = "#000000";
+            this.position = "relative";
+            this._map = null;//定义对象
+            this.className = "map";
+            this.createMap = function () {//创建背景图的方法
+                if (this._map == null) {//事先判断一下是否已近存在该对象，防止产生多余对象（后续会多次调用该方法）
+                    this._map = document.createElement("div");//动态创建div
+                    this._map.style.width = this.width;//为该div添加属性
+                    this._map.style.height = this.height;
+                    this._map.style.backgroundColor = this.bgColor;
+                    this._map.style.position = this.position;
+                    this._map.className = this.className;
+                    document.body.appendChild(this._map);//把改对象添加到body中
+                }
+            }
+        }
+
+        function score() {//定义分数框构造函数
+            this.width = "100px";
+            this.height = "30px";
+            this.bgColor = "#FFFFFF";
+            this.position = "absolute";
+            this._score = null;
+            this.className = "score";
+            this.createScore = function () {
+                if (this._score == null) {
+                    this._score = document.createElement("div");
+                    this._score.style.width = this.width;
+                    this._score.style.height = this.height;
+                    this._score.style.backgroundColor = this.bgColor;
+                    this._score.style.position = this.position;
+                    this._score.className = this.className;
+                    document.body.appendChild(this._score);
+                }
+                this._score.innerHTML = "<span>得分：" + b + "</span>";
+                /*这里要把动态改变的元素属性放到if判断外，如果放在if判断内元素该属性不会再改变*/
+            }
+        }
+
+        function begin() {//定义开始按钮构造函数
+            this.width = "100px";
+            this.height = "40px";
+            this.bgColor = "#4D5260";
+            this.position = "absolute";
+            this._begin = null;
+            this.className = "begin";
+            this.createBegin = function () {
+                if (this._begin == null) {
+                    this._begin = document.createElement("button");
+                    this._begin.style.width = this.width;
+                    this._begin.style.height = this.height;
+                    this._begin.style.backgroundColor = this.bgColor;
+                    this._begin.style.position = this.position;
+                    this._begin.className = this.className;
+                    this._begin.innerHTML = "<span>开始游戏</span>";
+                    document.body.appendChild(this._begin);
+                }
+            }
+        }
+
+        function food() {//定义产生豆豆的构造函数
+            this.width = "30px";
+            this.height = "30px";
+            this.bgColor = "#ccc";
+            this.position = "absolute";
+            this._food = null;
+            this.className = "food";
+            this.x = 0;//定义两个值用来获取随机数来随机豆豆的产生位置
+            this.y = 0;
+            this.createFood = function () {
+                if (this._food == null) {
+                    this._food = document.createElement("div");
+                    this._food.style.width = this.width;
+                    this._food.style.height = this.height;
+                    this._food.style.backgroundColor = this.bgColor;
+                    this._food.style.position = this.position;
+                    this._food.className = this.className;
+                    Map._map.appendChild(this._food);//添加到背景图_map中
+                }
+                while (address) {
+                    /*定义一个while循环用来改变豆豆的产生位置*/
+                    this.x = parseInt(Math.random() * 30);//获取0~30的随机数，这里的用背景图width/蛇身width得到30
+                    this.y = parseInt(Math.random() * 20);//获取0~20的随机数，这里的用背景图height/蛇身height得到20
+                    for (var i = 0; i < snakeBody.length; i++) {
+                        /*遍历所有的蛇身div，判断要是豆豆的产生位置和蛇身某部分重合则重新产生豆豆位置，直到不重合*/
+                        if (this.x != snakeBody[i][0] && this.y != snakeBody[i][1]) {
+                            this._food.style.left = this.x * 30 + "px";
+                            this._food.style.top = this.y * 30 + "px";
+                            address = false;
+                        }
+                        if (this.x == snakeBody[i][0] && this.y == snakeBody[i][1]) {
+                            address = true;
+                        }
+                    }
+                }
+                address = true;
+            }
+        }
+
+        function snake() {//定义蛇身构造函数
+            this.width = "30px";
+            this.height = "30px";
+            this.position = "absolute";
+            this.className = "snake";
+            this.direct = "right";//定义一个direct属性用来代表蛇当前运用方向（初始时向右运动）
+            this.direction = function (code) {
+                /*定义direction属性方法接受键盘是的keyCode值，根据接受的值改变direct属性*/
+                if (code == 37 && this.direct != "right") {
+                    this.direct = "left";
+                }
+                if (code == 38 && this.direct != "down") {
+                    this.direct = "up";
+                }
+                if (code == 39 && this.direct != "left") {
+                    this.direct = "right";
+                }
+                if (code == 40 && this.direct != "up") {
+                    this.direct = "down";
+                }
+            }
+
+            this.createSnake = function () {//创建蛇身函数方法
+                for (var i = 0; i < snakeBody.length; i++) {//遍历数组，创建每一个div
+                    if (snakeBody[i][2] == null) {
+                        snakeBody[i][2] = document.createElement("div");
+                        snakeBody[i][2].style.width = this.width;
+                        snakeBody[i][2].style.height = this.height;
+                        snakeBody[i][2].style.backgroundColor = snakeBody[i][3];
+                        snakeBody[i][2].style.position = this.position;
+                        snakeBody[i][2].className = this.className;
+                        Map._map.appendChild(snakeBody[i][2]);//添加到背景图_map中
+                    }
+                    snakeBody[i][2].style.left = snakeBody[i][0] * 30 + "px";//放到if判断外便可动态变化div位置，因为该方法在定时器中重复执行
+                    snakeBody[i][2].style.top = snakeBody[i][1] * 30 + "px";
+                }
+            }
+            this.move = function () {//定义蛇身运动构造函数
+                if (sign == true) {//这里的判定是实现贪吃蛇撞墙后或者撞到自己后停止运动
+                    if (snakeBody[0][0] == 30 || snakeBody[0][0] == -1 || snakeBody[0][1] == -1 || snakeBody[0][1] == 20) {
+                        /*如果当前蛇头的位置等于边框位置则给sign赋值false下一个时间调用方法时便不会执行*/
+                        sign = false;
+                        Over.createOver();//撞墙后动态创建结束框
+                        clearInterval(timer);//清除定时器（定时器重复定义会让蛇加速运动）
+                    }
+                    /*这里是贪吃蛇的核心思想：从头到尾把第一个div的位置属性赋值给后一个元素
+                    * 这样便会实现蛇运动的效果，其实就是所有div元素跟随蛇头运动，改变蛇头位
+                    * 置就好
+                    * */
+                    var length = snakeBody.length - 1;//获取数组最后一个元素下标
+                    for (var i = length; i > 0; i--) {//遍历数组元素前值位置赋值给后值
+                        snakeBody[i][0] = snakeBody[i - 1][0];
+                        snakeBody[i][1] = snakeBody[i - 1][1];
+                    }
+                    switch (this.direct) {//获取direct属性值每一时间段改变位置
+                        case "right":
+                            snakeBody[0][0] += 1;
+                            break;
+                        case "left":
+                            snakeBody[0][0] -= 1;
+                            break;
+                        case "up":
+                            snakeBody[0][1] -= 1;
+                            break;
+                        case "down":
+                            snakeBody[0][1] += 1;
+                            break;
+                    }
+                    for (var i = 1; i < snakeBody.length; i++) {
+                        if (snakeBody[0][0] == snakeBody[i][0] && snakeBody[0][1] == snakeBody[i][1]) {
+                            /*如果当前蛇头的位置等于蛇身位置则给sign赋值false下一个时间调用方法时便不会执行*/
+                            sign = false;
+                            Over.createOver();
+                            clearInterval(timer);
+                        }
+                    }
+                    if (snakeBody[0][0] == Food.x && snakeBody[0][1] == Food.y) {
+                        /*如果当前蛇头的位置等于豆豆的位置（吃到豆子）则给snakeBody数组添加一个新元素*/
+                        snakeBody.push([
+                            snakeBody[snakeBody.length - 1][0],
+                            snakeBody[snakeBody.length - 1][1],
+                            null,
+                            "#35ff4c"
+                        ]);
+                        Food.createFood();//创建一个新的豆豆位置
+                        b++;//得分加一
+                        Score._score.innerHTML = "<span>得分：" + b + "</span>";
+                    }
+                    Snake.createSnake();//每一次移动创建一次蛇身
+                }
+            }
+        }
+
+        function over() {//定义结束游戏框构造函数
+            this.width = "300px";
+            this.height = "100px";
+            this.bgColor = "#ccc";
+            this.position = "absolute";
+            this._over = null;
+            this.className = "over";
+            this.createOver = function () {
+                if (this._over == null) {
+                    this._over = document.createElement("div");
+                    this._over.style.width = this.width;
+                    this._over.style.height = this.height;
+                    this._over.style.backgroundColor = this.bgColor;
+                    this._over.style.position = this.position;
+                    this._over.className = this.className;
+                    this._over.innerHTML = "<span>游戏结束</br>得分：" + b + "</span>";
+                    Map._map.appendChild(this._over);
+                    NewGame.createNewGame();
+                }
+            }
+        }
+
+        function newGame() {//定义重新开始按钮构造函数
+            this.width = "100px";
+            this.height = "40px";
+            this.bgColor = "#4D5260";
+            this.position = "absolute";
+            this._newGame = null;
+            this.className = "newGame";
+            this.createNewGame = function () {
+                if (this._newGame == null) {
+                    this._newGame = document.createElement("button");
+                    this._newGame.style.width = this.width;
+                    this._newGame.style.height = this.height;
+                    this._newGame.style.backgroundColor = this.bgColor;
+                    this._newGame.style.position = this.position;
+                    this._newGame.className = this.className;
+                    this._newGame.innerHTML = "<span>重新开始</span>";
+                    Map._map.appendChild(this._newGame);
+                }
+
+                var oNewGame = document.getElementsByClassName("newGame")[0];//获取创建后的重新开始按钮
+                oNewGame.onclick = function () {//添加点击事件
+                    sign = true;//初始sign标志位
+                    b = 0;//初始分数
+                    Snake.direct = "right";//初始方向
+                    Map._map.innerHTML = "";//清空背景内的元素
+                    NewGame._newGame = null;//初始各种对象
+                    Food._food = null;
+                    Over._over = null;
+                    Score.createScore();//再次调用创建函数
+                    Map.createMap();
+                    snakeBody = [[4, 1, null, "#9fe4ff"], [3, 1, null, "#35ff4c"], [2, 1, null, "#35ff4c"]];//初始一下蛇身
+                    Snake.createSnake();
+                    Food.createFood();
+                    clearInterval(timer);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
