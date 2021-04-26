@@ -15,6 +15,7 @@
         background-color: antiquewhite;
         position: relative;
     }
+
     #snake {
         width: 10px;
         height: 10px;
@@ -33,38 +34,37 @@
     </div>
 
     <script>
-        var time;
-        var direction;
-        var up = 1;
-        var down = 2;
-        var left = 3;
-        var right = 4;
-        var food;
-
-        onkeypress = function (e) {
+        let map;
+        let time;
+        let direction;
+        let up = 1;
+        let left = 2;
+        let right = 3;
+        let down = 4;
+        let food;
+        var snakebody = [[4, 1, null, "#9fe4ff"], [3, 1, null, "#35ff4c"], [2, 1, null, "#35ff4c"]];
+        // 按键控制上下左右
+        document.onkeydown = function (e) {
             window.clearInterval(time);
-            var snake = document.getElementById("snake");
-            var top_length = snake.offsetTop;
-            if (e.keyCode == 119) {
-                //上
-                direction = up;
-            } else if (e.keyCode == 115) {
-                //下
-                direction = down;
-            } else if (e.keyCode == 100) {
-                //右
-                direction = right
-            } else if (e.keyCode == 97) {
-                //左
+            if (e.keyCode == 37) {
                 direction = left;
+            } else if (e.keyCode == 38) {
+                direction = up;
+            } else if (e.keyCode == 39) {
+                direction = right;
+            } else if (e.keyCode == 40) {
+                direction = down;
             }
             time = setInterval(move, 200);
-        };
-
+            console.log(e.keyCode);
+        }
+        // 蛇的移动
         function move() {
-            var snake = document.getElementById("snake");
-            var top_length = snake.offsetTop;
-            var left_length = snake.offsetLeft;
+            let snake = document.getElementById('snake');
+            let top_length = snake.offsetTop;
+            let left_length = snake.offsetLeft;
+            // console.log(topsnake,leftsnake);
+
             switch (direction) {
                 case up:
                     if (top_length > 0) {
@@ -91,9 +91,10 @@
                     }
                     break;
             }
+
             //显示食物
             if (food == null) {
-                showFood();
+                showfood();
             } else {
                 var map = document.getElementById("map");
                 //alert(left_length + ":" + food.offsetLeft + "|" + top_length + ":" + food.offsetTop);
@@ -103,25 +104,29 @@
                 }
             }
         }
-
-        /**
-         * 随即出现食物
-         */
-        function showFood() {
-            var food_top = Math.floor(Math.random() * 50) * 10;
-            var food_left = Math.floor(Math.random() * 50) * 10;
-            var map = document.getElementById("map");
+        // 食物的函数
+        function showfood(){
+            let color = "rgb("+Math.floor(Math.random()*200)+","+Math.floor(Math.random()*200)+","+Math.floor(Math.random()*200)+")";
+            let foodtop = Math.floor(Math.random()*50)*10;
+            let foodleft = Math.floor(Math.random()*50)*10;
+            map = document.getElementById("map");
             food = document.createElement("div");
             map.appendChild(food);
+
             food.style.width = "10px";
             food.style.height = "10px";
             food.style.position = "absolute";
-            food.style.backgroundColor = "blue";
-            food.style.top = food_top + "px";
-            food.style.left = food_left + "px";
+            // food.style.backgroundColor = "black";
+            food.style.backgroundColor = color;
+            food.style.top = foodtop + "px";
+            food.style.left = foodleft + "px";
         }
+        
+
+
+
+        
     </script>
-    //仅完成部分功能
 </body>
 
 </html>
